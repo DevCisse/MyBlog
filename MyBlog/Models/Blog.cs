@@ -12,7 +12,7 @@ namespace MyBlog.Models
     public class Blog
     {
         public int Id { get; set; }
-        public string AuthorId { get; set; }
+        public string BlogUserId { get; set; }
 
 
         [Required]
@@ -41,7 +41,7 @@ namespace MyBlog.Models
 
 
 
-        public virtual IdentityUser Author{ get; set; }
+        public virtual BlogUser BlogUser{ get; set; }
         public virtual ICollection<Post> Posts { get; set; } = new HashSet<Post>();
 
 
