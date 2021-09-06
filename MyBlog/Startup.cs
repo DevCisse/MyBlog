@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyBlog.Data;
 using MyBlog.Models;
+using MyBlog.Services;
+using MyBlog.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,9 +46,36 @@ namespace MyBlog
             services.AddIdentity<BlogUser,IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
-            }).AddEntityFrameworkStores<ApplicationDbContext>();
+            })
+                .AddDefaultUI()
+                .AddDefaultTokenProviders()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
+
+
+            //register AsideService
+            services.AddScoped<AsideService>();
+
+            //register data service
+
+            services.AddScoped<DataService>();
 
             services.AddControllersWithViews();
+
+            //register a preconfigured service
+
+            services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
+
+            services.AddScoped<IBlogEmailSender, EmailService>();
+
+            services.AddScoped<IImageService, BasicImageService>();
+            services.AddScoped<ISlugService, BasicSlugService>();
+            
+            //services.Configure<MailSettings>(configure => { 
+            //configure.
+            //});
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

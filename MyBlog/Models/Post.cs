@@ -13,6 +13,7 @@ namespace MyBlog.Models
     public class Post
     {
         public int Id { get; set; }
+        [Display(Name ="Blog Name")]
         public int BlogId { get; set; }
         public string BlogUserId { get; set; }
 
@@ -40,12 +41,13 @@ namespace MyBlog.Models
         public ReadyStatus  ReadyStatus{ get; set; }
         public byte[] ImageData { get; set; }
         public string   ContentType { get; set; }
+        public string Slug { get; set; }
 
         [NotMapped]
         public IFormFile Image { get; set; }
 
         public virtual Blog Blog { get; set; }
-        public virtual BlogUser Author  { get; set; }
+        public virtual BlogUser BlogUser  { get; set; }
 
 
         public virtual ICollection<Tag> Tags { get; set; } = new HashSet<Tag>();

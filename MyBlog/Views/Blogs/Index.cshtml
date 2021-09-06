@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<MyBlog.Models.Blog>
+@inject IImageService ImageService 
 
 @{
     ViewData["Title"] = "Index";
@@ -52,7 +53,7 @@
                 @Html.DisplayFor(modelItem => item.Updated)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ImageData)
+               <img src = @ImageService.DecodeImage(item.ImageData,item.ContentType)  class="img-fluid"/>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ContentType)
