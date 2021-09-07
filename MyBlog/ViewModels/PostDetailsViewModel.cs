@@ -9,7 +9,7 @@ namespace MyBlog.ViewModels
     public class PostDetailsViewModel
     {
         public Post Post { get; set; }
-        public List<Tag> Tags { get; set; }
-        public List<Comment> Comments { get; set; }
+        public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

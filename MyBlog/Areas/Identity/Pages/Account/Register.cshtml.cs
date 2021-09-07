@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MyBlog.Models;
 using MyBlog.Services;
@@ -25,17 +28,24 @@ namespace MyBlog.Areas.Identity.Pages.Account
         private readonly UserManager<BlogUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IBlogEmailSender _emailSender;
+        private readonly IImageService imageService;
+        private readonly IConfiguration configuration;
 
         public RegisterModel(
             UserManager<BlogUser> userManager,
             SignInManager<BlogUser> signInManager,
             ILogger<RegisterModel> logger,
-            IBlogEmailSender emailSender)
+            IBlogEmailSender emailSender,
+            IImageService imageService,
+            IConfiguration
+             configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            this.imageService = imageService;
+            this.configuration = configuration;
         }
 
         [BindProperty]
@@ -47,6 +57,9 @@ namespace MyBlog.Areas.Identity.Pages.Account
 
         public class InputModel
         {
+
+            [Display(Name ="Custom Image")]
+            public IFormFile Image{ get; set; }
             [Required]
             [StringLength(50, ErrorMessage = "The {0} must be at least {2} and no more than {1}", MinimumLength = 2)]
             [Display(Name = "First Name")]
@@ -86,8 +99,20 @@ namespace MyBlog.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                
-                var user = new BlogUser { UserName = Input.Email, Email = Input.Email,FirstName =  Input.FirstName,LastName = Input.LastName };
+
+                var user = new BlogUser {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    FirstName = Input.FirstName
+                    , LastName = Input.LastName,
+                    Image = (await imageService.EncodeImageAsync(Input.Image)) ??
+                            await imageService.EncodeImageAsync(configuration["DefaultUserImage"]),
+                    ContentType = Input.Image is null ?
+                                    Path.GetExtension(configuration["DefaultUserImage"]) :
+                                    imageService.ContentType(Input.Image)
+
+                                    
+                };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

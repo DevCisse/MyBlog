@@ -14,6 +14,10 @@ namespace MyBlog.Models
     {
         public int Id { get; set; }
         [Display(Name ="Blog Name")]
+
+        public int View { get; set; }
+
+        [Display(Name ="Blog Name")]
         public int BlogId { get; set; }
         public string BlogUserId { get; set; }
 

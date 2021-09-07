@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyBlog.Data;
 using MyBlog.Models;
 using MyBlog.Services;
+using MyBlog.ViewModels;
 
 namespace MyBlog.Controllers
 {
@@ -15,11 +17,13 @@ namespace MyBlog.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ISlugService slugService;
+        private readonly IImageService imageService;
 
-        public PostsController(ApplicationDbContext context,ISlugService slugService)
+        public PostsController(ApplicationDbContext context,ISlugService slugService,IImageService imageService)
         {
             _context = context;
             this.slugService = slugService;
+            this.imageService = imageService;
         }
 
         // GET: Posts
@@ -30,9 +34,9 @@ namespace MyBlog.Controllers
         }
 
         // GET: Posts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string slug)
         {
-            if (id == null)
+            if (slug == null)
             {
                 return NotFound();
             }
@@ -40,13 +44,30 @@ namespace MyBlog.Controllers
             var post = await _context.Posts
                 .Include(p => p.Blog)
                 .Include(p => p.BlogUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                
+                .Include(p => p.Comments).ThenInclude(c => c.BlogUser)
+                .Include(p => p.Tags)
+                .FirstOrDefaultAsync(m => m.Slug == slug);
+
+          
+
             if (post == null)
             {
                 return NotFound();
             }
 
-            return View(post);
+            PostDetailsViewModel model = new()
+            {
+                Post = post,
+                Comments = post.Comments,
+                Tags = post.Tags
+            };
+
+            post.View++;
+           await  _context.SaveChangesAsync();
+
+
+            return View(model);
         }
 
         // GET: Posts/Create
@@ -70,16 +91,22 @@ namespace MyBlog.Controllers
                 post.Created = DateTime.Now;
 
                 var slug = slugService.UrlFriendly(post.Title);
+                post.Slug = slug;
 
-                if(!slugService.IsUnique(post.Slug))
+                if(!slugService.IsUnique(slug))
                 {
                     ModelState.AddModelError("Title", "The title you provided cannot be used as it results in a duplicate slug.");
 
+                    
+                     
                     ViewData["TagValues"] = string.Join(",", tagValues);
                     return View(post);
 
 
                 }
+
+                post.ImageData = await imageService.EncodeImageAsync(post.Image);
+                post.ContentType = imageService.ContentType(post.Image);
 
                 post.Slug = slug;
                 
@@ -114,7 +141,7 @@ namespace MyBlog.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus,Image")] Post post)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BlogId,Title,Abstract,Content,ReadyStatus")] Post post,IFormFile newImage)
         {
             if (id != post.Id)
             {
@@ -125,8 +152,21 @@ namespace MyBlog.Controllers
             {
                 try
                 {
-                    post.Updated = DateTime.Now;
-                    _context.Update(post);
+
+                    var newPost = await _context.Posts.FindAsync(post.Id) ;
+                    newPost.Updated = DateTime.Now;
+                    newPost.Title = post.Title;
+                    newPost.Abstract = post.Abstract;
+                    newPost.Content = post.Content;
+                    newPost.ReadyStatus = post.ReadyStatus;
+
+                    if(newImage is not null)
+                    {
+                        newPost.ImageData = await imageService.EncodeImageAsync(newImage);
+                        newPost.ContentType = imageService.ContentType(newImage);
+
+                    }
+                    
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
