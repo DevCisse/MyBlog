@@ -1,9 +1,11 @@
-﻿@model IPagedList<Post>
-@inject IImageService ImageService
-@{
-    ViewData["Title"] = "Home Page";
-}
+﻿
 
+
+@model IPagedList<Post>
+
+@{
+    ViewData["Title"] = "SearchIndex";
+}
 
 <div class="row">
     <!-- Latest Posts -->
@@ -15,8 +17,7 @@
                 {
                     <!-- post -->
                     <div class="post col-xl-6">
-                        <div class="post-thumbnail"><a asp-action="Details" asp-controller="Posts" asp-route-slug="@post.Slug"><img src="@ImageService.DecodeImage(post.ImageData,post
-.ContentType)" alt="..." class="img-fluid"></a></div>
+                        <div class="post-thumbnail"><a asp-action="Details" asp-controller="Posts" asp-route-slug="@post.Slug"><img src="~/img/blog-post-1.jpeg" alt="..." class="img-fluid"></a></div>
                         <div class="post-details">
                             <div class="post-meta d-flex justify-content-between">
                                 <div class="date meta-last"> @post.Created.Month @post.Created.Month.ToString("") | @post.Created.Year @*20 May | 2016*@</div>
@@ -37,21 +38,15 @@
                                     <i class="icon-clock"></i>
                                     @{
                                         var months = DateTime.Now.Month - post.Created.Month;
-                                        var days = DateTime.Now.Date.Day - post.Created.Date.Day;
+
                                         if (months == 0)
                                         {
-                                           // <span>@DateTime.Now.AddDays(-post.Created.Day).Humanize() </span>
-                                            <span>@TimeSpan.FromDays(-days).Humanize()</span>
-
+                                            <span>@DateTime.Now.AddDays(-post.Created.Day).Humanize() </span>
                                         }
                                         else
                                         {
-                                            //<span>@DateTime.Now.AddMonths(-post.Created.Month).Humanize() </span>
-                                            <span>@DateTime.UtcNow.AddMonths(-months).Humanize()</span>
+                                            <span>@DateTime.Now.AddMonths(-post.Created.Month).Humanize() </span>
                                         }
-
-
-                                @*<span> @TimeSpan.FromDays(post.Created.Day).Humanize() </span>*@
 
                                     }
 
@@ -70,16 +65,12 @@
             <nav aria-label="Page navigation example">
                 <ul class="pagination pagination-template d-flex justify-content-center">
 
-                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, searchTerm = ViewData["Tag"] }), new PagedListRenderOptions
                {
                    LiElementClasses = new[] { "page-item" },
                    PageClasses = new[] { "page-link" }
                })
-                    @*<li class="page-item"><a href="#" class="page-link"> <i class="fa fa-angle-left"></i></a></li>
-                        <li class="page-item"><a href="#" class="page-link active">1</a></li>
-                        <li class="page-item"><a href="#" class="page-link">2</a></li>
-                        <li class="page-item"><a href="#" class="page-link">3</a></li>
-                        <li class="page-item"><a href="#" class="page-link"> <i class="fa fa-angle-right"></i></a></li>*@
+                    
                 </ul>
             </nav>
         </div>

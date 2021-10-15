@@ -15,7 +15,8 @@ using MyBlog.Services;
 namespace MyBlog.Controllers
 {
 
-    
+
+    [Authorize(Roles = "Administrator")]
     public class BlogsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -82,6 +83,8 @@ namespace MyBlog.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            
             return View(blog);
         }
 

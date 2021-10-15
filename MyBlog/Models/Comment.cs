@@ -27,7 +27,7 @@ namespace MyBlog.Models
         public DateTime? Moderated { get; set; }
 
         public DateTime? Deleted { get; set; }
-        [Required]
+   
         [StringLength(500, ErrorMessage = "The {0} must be at least {2} and at most {1}", MinimumLength = 2)]
         [Display(Name = "Moderated Comment")]
         public string ModeratedBody { get; set; }

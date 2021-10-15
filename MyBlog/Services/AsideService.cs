@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using MyBlog.Data;
 using MyBlog.Models;
 using System;
@@ -8,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace MyBlog.Services
 {
+
+
+
     public class AsideService
     {
         private readonly ApplicationDbContext context;

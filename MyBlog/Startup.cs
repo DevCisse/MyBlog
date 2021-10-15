@@ -42,6 +42,7 @@ namespace MyBlog
             //    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
+           // services.AddServerSideBlazor();
 
             services.AddIdentity<BlogUser,IdentityRole>(options =>
             {
@@ -71,6 +72,8 @@ namespace MyBlog
 
             services.AddScoped<IImageService, BasicImageService>();
             services.AddScoped<ISlugService, BasicSlugService>();
+
+            services.AddScoped<SearchService>();
             
             //services.Configure<MailSettings>(configure => { 
             //configure.
@@ -85,12 +88,15 @@ namespace MyBlog
             {
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
+                //app.UseWelcomePage();
             }
             else
             {
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+                //app.UseWelcomePage("/Test");
+
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -103,9 +109,19 @@ namespace MyBlog
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
+                    name: "SlugRoute",
+                    pattern: "Blogs/{slug}",
+                   // pattern: "BlogPosts/UrlFriendly/{slug}",
+                    defaults: new { controller = "Posts", action = "Details" }
+
+                 );
+
+                endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
+
+                
             });
         }
     }

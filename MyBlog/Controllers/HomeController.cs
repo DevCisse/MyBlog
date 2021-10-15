@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MyBlog.Data;
 using MyBlog.Models;
 using MyBlog.Services;
 using MyBlog.ViewModels;
@@ -8,6 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using X.PagedList;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyBlog.Controllers
 {
@@ -15,20 +18,42 @@ namespace MyBlog.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IBlogEmailSender blogEmailSender;
+        private readonly ApplicationDbContext context;
 
-        public HomeController(ILogger<HomeController> logger,IBlogEmailSender blogEmailSender)
+        public HomeController(ILogger<HomeController> logger,IBlogEmailSender blogEmailSender,ApplicationDbContext context)
         {
             _logger = logger;
             this.blogEmailSender = blogEmailSender;
+            this.context = context;
         }
 
-        public IActionResult Index()
+        public  async Task<IActionResult> Index(int? page )
+        {
+            var pageNumber = page ?? 1;
+            var pageSize = 4;
+
+
+            var posts = context.Posts.Where(p => p.ReadyStatus == Models.Enums.ReadyStatus.ProductionReady)
+                .OrderByDescending(p => p.Created)
+                .Include(p => p.Blog)
+                .Include(p => p.Comments)
+                .Include(p => p.BlogUser)
+                .ToPagedListAsync(pageNumber,pageSize);
+            return View(await posts);
+        }
+
+        public IActionResult Default()
         {
             return View();
         }
 
 
         public IActionResult Contact()
+        {
+            return View();
+        }
+
+        public IActionResult About()
         {
             return View();
         }

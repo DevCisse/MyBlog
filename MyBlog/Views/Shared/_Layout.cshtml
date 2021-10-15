@@ -55,10 +55,10 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Bootstrap Blog - B4 Template by Bootstrap Temple</title>
+    <title>DevCisse;s Blog</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="all,follow">
+    <meta name="robots" content="DevCisse's Blog'">
     <!-- Bootstrap CSS-->
     <link rel="stylesheet" href="~/vendor/bootstrap/css/bootstrap.min.css">
     <!-- Font Awesome CSS-->
@@ -90,9 +90,9 @@
                     <div class="close-btn"><i class="icon-close"></i></div>
                     <div class="row d-flex justify-content-center">
                         <div class="col-md-8">
-                            <form action="#">
+                            <form asp-controller="Posts" asp-action="SearchIndex">
                                 <div class="form-group">
-                                    <input type="search" name="search" id="search" placeholder="What are you looking for?">
+                                    <input type="search" name="searchTerm" id="search" placeholder="What are you looking for?">
                                     <button type="submit" class="submit"><i class="icon-search-1"></i></button>
                                 </div>
                             </form>
@@ -103,7 +103,7 @@
             <div class="container">
                 <!-- Navbar Brand -->
                 <div class="navbar-header d-flex align-items-center justify-content-between">
-                    <!-- Navbar Brand --><a href="/" class="navbar-brand">Bootstrap Blog</a>
+                    <!-- Navbar Brand --><a href="/" class="navbar-brand">DevCisse's Blog</a>
                     <!-- Toggle Button-->
                     <button type="button" data-toggle="collapse" data-target="#navbarcollapse" aria-controls="navbarcollapse" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"><span></span><span></span><span></span></button>
                 </div>
@@ -126,6 +126,7 @@
                         <li class="nav-item">
                             <a asp-action="Contact" asp-controller="Home" class="nav-link ">Contact</a>
                         </li>
+
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
@@ -146,6 +147,10 @@
                                 <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
                             </li>
                         }
+
+                          <li class="nav-item">
+                            <a asp-action="About" asp-controller="Home" class="nav-link ">About Me</a>
+                        </li>
                     </ul>
                     <div class="navbar-text"><a href="#" class="search-btn"><i class="icon-search-1"></i></a></div>
                     <ul class="langs navbar-text"><a href="#" class="active">EN</a><span> </span><a href="#">ES</a></ul>
@@ -164,11 +169,11 @@
 
     <!-- Page Footer-->
     <footer class="main-footer">
-        <div class="container">
+       @* <div class="container">
             <div class="row">
                 <div class="col-md-4">
                     <div class="logo">
-                        <h6 class="text-white">Bootstrap Blog</h6>
+                        <h6 class="text-white">DevCisse's Blog</h6>
                     </div>
                     <div class="contact-details">
                         <p>53 Broadway, Broklyn, NY 11249</p>
@@ -220,7 +225,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>*@
         <div class="copyrights">
             <div class="container">
                 <div class="row">
@@ -247,8 +252,12 @@
     <script src="~/vendor/bootstrap/js/bootstrap.min.js"></script>
     <script src="~/vendor/jquery.cookie/jquery.cookie.js"></script>
     <script src="~/vendor/@@fancyapps/fancybox/jquery.fancybox.min.js"></script>
+
     <script src="~/js/front.js"></script>
     <script src="~/summernote/summernote-bs4.min.js"></script>
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

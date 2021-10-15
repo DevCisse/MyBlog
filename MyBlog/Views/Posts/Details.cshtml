@@ -1,6 +1,7 @@
 ﻿@model PostDetailsViewModel
 @inject SignInManager<BlogUser> SignInManager
 @inject UserManager<BlogUser> UserManager
+@inject IImageService ImageService
 
 @{
     ViewData["Title"] = "Details";
@@ -12,25 +13,49 @@
     <main class="post blog-post col-lg-8">
         <div class="container">
             <div class="post-single">
-                <div class="post-thumbnail"><img src="~/img/blog-post-3.jpeg" alt="..." class="img-fluid"></div>
+                <div class="post-thumbnail"><img src="@ImageService.DecodeImage(Model.Post.ImageData,Model.Post.ContentType)" alt="..." class="img-fluid"></div>
                 <div class="post-details">
                     <div class="post-meta d-flex justify-content-between">
-                        <div class="category"><a href="#">Business</a><a href="#">Financial</a></div>
+                        <div class="category">
+                           @* <a href="#">Business</a>
+                            <a href="#">Financial</a>*@
+                            <a href="#"> @Model.Post.Blog.Name</a>
+
+                           
+                            </div>
                     </div>
-                    <h1>Diversity in Engineering: The Effect on Questions<a href="#"><i class="fa fa-bookmark-o"></i></a></h1>
+                    <h1>@Model.Post.Title<a href="#"><i class="fa fa-bookmark-o"></i></a></h1>
                     <div class="post-footer d-flex align-items-center flex-column flex-sm-row">
                         <a href="#" class="author d-flex align-items-center flex-wrap">
                             <div class="avatar"><img src="~/img/avatar-1.jpg" alt="..." class="img-fluid"></div>
-                            <div class="title"><span>John Doe</span></div>
+                            <div class="title"><span>@Model.Post.BlogUser.FullName</span></div>
                         </a>
                         <div class="d-flex align-items-center flex-wrap">
-                            <div class="date"><i class="icon-clock"></i> 2 months ago</div>
-                            <div class="views"><i class="icon-eye"></i> 500</div>
-                            <div class="comments meta-last"><i class="icon-comment"></i>12</div>
+                            <div class="date">
+                                <i class="icon-clock"></i>
+                                @*2 months ago*@
+
+                                @{
+                                    var months = DateTime.Now.Month - Model.Post.Created.Month;
+
+                                    if (months == 0)
+                                    {
+                                        <span>@DateTime.Now.AddDays(-Model.Post.Created.Day).Humanize() </span>
+                                    }
+                                    else
+                                    {
+                                        <span>@DateTime.Now.AddMonths(-Model.Post.Created.Month).Humanize() </span>
+                                    }
+
+                                }
+
+                            </div>
+                            <div class="views"><i class="icon-eye"></i> @Model.Post.View</div>
+                            <div class="comments meta-last"><i class="icon-comment"></i>@Model.Comments.Count</div>
                         </div>
                     </div>
                     <div class="post-body">
-                        <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                       @* <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
                         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
                         <p> <img src="~/img/featured-pic-3.jpeg" alt="..." class="img-fluid"></p>
                         <h3>Lorem Ipsum Dolor</h3>
@@ -42,83 +67,249 @@
                                 <cite title="Source Title">Source Title</cite>
                             </footer>
                         </blockquote>
-                        <p>quasi nam. Libero dicta eum recusandae, commodi, ad, autem at ea iusto numquam veritatis, officiis. Accusantium optio minus, voluptatem? Quia reprehenderit, veniam quibusdam provident, fugit iusto ullam voluptas neque soluta adipisci ad.</p>
+                        <p>quasi nam. Libero dicta eum recusandae, commodi, ad, autem at ea iusto numquam veritatis, officiis. Accusantium optio minus, voluptatem? Quia reprehenderit, veniam quibusdam provident, fugit iusto ullam voluptas neque soluta adipisci ad.</p>*@
+
+                        @Html.Raw(Model.Post.Content)
                     </div>
-                    <div class="post-tags"><a href="#" class="tag">#Business</a><a href="#" class="tag">#Tricks</a><a href="#" class="tag">#Financial</a><a href="#" class="tag">#Economy</a></div>
-                    <div class="posts-nav d-flex justify-content-between align-items-stretch flex-column flex-md-row">
-                        <a href="#" class="prev-post text-left d-flex align-items-center">
-                            <div class="icon prev"><i class="fa fa-angle-left"></i></div>
-                            <div class="text">
-                                <strong class="text-primary">Previous Post </strong>
-                                <h6>I Bought a Wedding Dress.</h6>
-                            </div>
-                        </a><a href="#" class="next-post text-right d-flex align-items-center justify-content-end">
-                            <div class="text">
-                                <strong class="text-primary">Next Post </strong>
-                                <h6>I Bought a Wedding Dress.</h6>
-                            </div>
-                            <div class="icon next"><i class="fa fa-angle-right">   </i></div>
-                        </a>
+                    <div class="post-tags">
+
+
+                        @foreach (var tag in Model.Tags)
+                        {
+                            <a asp-action="TagIndex" asp-route-tag="@tag.Text" class="tag">#@tag.Text</a>
+                        }
                     </div>
-                    <div class="post-comments">
+
+
+                    @*<div  class="posts-nav d-flex justify-content-between align-items-stretch flex-column flex-md-row">
+                            <a href="#" class="prev-post text-left d-flex align-items-center">
+                                <div class="icon prev"><i class="fa fa-angle-left"></i></div>
+                                <div class="text">
+                                    <strong class="text-primary">Previous Post </strong>
+                                    <h6>I Bought a Wedding Dress.</h6>
+                                </div>
+                            </a><a href="#" class="next-post text-right d-flex align-items-center justify-content-end">
+                                <div class="text">
+                                    <strong class="text-primary">Next Post </strong>
+                                    <h6>I Bought a Wedding Dress.</h6>
+                                </div>
+                                <div class="icon next"><i class="fa fa-angle-right">   </i></div>
+                            </a>
+                        </div>*@
+
+
+
+                    <div class="post-comments" id="commentSection">
                         <header>
-                            <h3 class="h6">Post Comments<span class="no-of-comments">(3)</span></h3>
+                            <h3 class="h6">Post Comments<span class="no-of-comments">(@Model.Comments.Count)</span></h3>
                         </header>
-                        <div class="comment">
-                            <div class="comment-header d-flex justify-content-between">
-                                <div class="user d-flex align-items-center">
-                                    <div class="image"><img src="~/img/user.svg" alt="..." class="img-fluid rounded-circle"></div>
-                                    <div class="title"><strong>Jabi Hernandiz</strong><span class="date">May 2016</span></div>
+
+
+
+
+                        @if (Model.Comments.Any())
+                        {
+
+                            @foreach (var comment in Model.Comments)
+                            {
+
+                                <div class="comment">
+                                    <div class="comment-header d-flex justify-content-between">
+                                        <div class="user d-flex align-items-center">
+                                            <div class="image">
+                                                <img src="~/img/user.svg" alt="..." class="img-fluid rounded-circle">
+                                            </div>
+                                            <div class="title">
+                                                <strong>
+                                                    @comment.BlogUser.FullName
+
+                                                </strong><span class="date">
+                                                    @if (comment.Moderated is not null)
+                                                    {
+                                                        <span>   @comment.Moderated?.ToString("MMMM")     @comment.Moderated?.ToString("yyy")</span>
+
+
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>  @comment.Created.ToString("MMMM")  @comment.Created.Year</span>
+                                                    }
+
+
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="comment-body">
+                                        <p>
+                                            @*trying to see if the comment is not moderated*@
+
+                                            @if (comment.Moderated is not null)
+                                            {
+
+                                                <div>
+                                                    <span class="text-danger">Comment has been moderated</span>
+                                                    <div>
+                                                        @comment.ModeratedBody
+                                                    </div>
+
+                                                </div>
+                                            }
+
+                                            else
+                                            {
+                                                <span>@comment.Body</span>
+                                            }
+
+                                            <div>
+
+                                                @if (User.IsInRole(BlogRole.Moderator.ToString()) && comment.Deleted is null)
+                                                {
+                                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#moderateModal_@comment.Id">
+                                                        Moderate
+                                                    </button>
+
+                                                }
+
+                                            </div>
+
+                                            <span class="float-right">
+
+                                                @if (comment.Moderated is null && comment.Deleted is null && comment.BlogUserId == UserManager.GetUserId(User))
+                                                {
+                                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editModal_@comment.Id">
+                                                        Edit
+                                                    </button>
+                                                }
+
+                                            </span>
+
+                                        </p>
+                                    </div>
+
                                 </div>
-                            </div>
-                            <div class="comment-body">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
-                            </div>
-                        </div>
-                        <div class="comment">
-                            <div class="comment-header d-flex justify-content-between">
-                                <div class="user d-flex align-items-center">
-                                    <div class="image"><img src="~/img/user.svg" alt="..." class="img-fluid rounded-circle"></div>
-                                    <div class="title"><strong>Nikolas</strong><span class="date">May 2016</span></div>
+
+
+                                //begin editmodal
+                                <div class="modal fade" id="editModal_@comment.Id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Edit Comment</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <form asp-action="Edit" asp-controller="Comments">
+                                                <div class="modal-body">
+
+                                                    <input type="hidden" name="Id" value="@comment.Id" />
+
+                                                    <div class="form-group ">
+                                                        <textarea name="body" id="usercomment" required placeholder="Type your comment" class="form-control">@comment.Body</textarea>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="comment-body">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
-                            </div>
-                        </div>
-                        <div class="comment">
-                            <div class="comment-header d-flex justify-content-between">
-                                <div class="user d-flex align-items-center">
-                                    <div class="image"><img src="~/img/user.svg" alt="..." class="img-fluid rounded-circle"></div>
-                                    <div class="title"><strong>John Doe</strong><span class="date">May 2016</span></div>
+
+                                //end edit modal
+
+                                //begin moderateModal
+
+                                <div class="modal fade" id="moderateModal_@comment.Id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Moderate Comment</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <form asp-action="Moderate" asp-controller="Comments">
+                                                @Html.Hidden("Id", comment.Id)
+                                                @Html.Hidden("Body", comment.Body)
+                                                <div class="modal-body">
+
+
+
+                                                    <div class="form-group ">
+                                                        <label>Orginal Comment</label>
+                                                        <textarea name="body" id="usercomment" required placeholder="Type your comment" disabled class="form-control">@comment.Body</textarea>
+                                                    </div>
+
+                                                    <div class="form-group ">
+                                                        <label>Moderated comment</label>
+                                                        <textarea name="ModeratedBody" id="usercomment" required placeholder="Moderation comment" class="form-control"></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Reason for moderation</label>
+                                                        <select name="ModerationType" class="form-control" asp-items="Html.GetEnumSelectList<ModerationType>()"></select>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="comment-body">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
-                            </div>
-                        </div>
+                                //end moderateModal
+
+                            }
+                        }
+
+                        else
+                        {
+                            <p>No comments yet</p>
+                        }
+
                     </div>
-                    <div class="add-comment">
-                        <header>
-                            <h3 class="h6">Leave a reply</h3>
-                        </header>
-                        <form action="#" class="commenting-form">
-                            <div class="row">
-                                <div class="form-group col-md-6">
-                                    <input type="text" name="username" id="username" placeholder="Name" class="form-control">
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <div class="add-comment">
+                            <header>
+                                <h3 class="h6">Leave a reply</h3>
+                            </header>
+                            <form asp-controller="Comments" asp-action="Create" class="commenting-form">
+
+                                @{
+                                    var userId = UserManager.GetUserId(User);
+                                }
+                                <input type="hidden" name="PostId" value="@Model.Post.Id" />
+                                @Html.Hidden("BlogUserId", userId)
+
+                                <div class="row">
+
+                                    <div class="form-group col-md-12">
+                                        <textarea name="body" id="usercomment" placeholder="Type your comment" class="form-control"></textarea>
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <button type="submit" class="btn btn-secondary">Submit Comment</button>
+                                    </div>
                                 </div>
-                                <div class="form-group col-md-6">
-                                    <input type="email" name="username" id="useremail" placeholder="Email Address (will not be published)" class="form-control">
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <textarea name="usercomment" id="usercomment" placeholder="Type your comment" class="form-control"></textarea>
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <button type="submit" class="btn btn-secondary">Submit Comment</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                            </form>
+                        </div>
+
+
+                    }
+
+                    else
+                    {
+                        <p> <a asp-area="Identity" asp-page="/Account/Login" asp-route-ReturnUrl="~/Posts/Details?slug=@Model.Post.Slug">Login to add comment</a> </p>
+
+                    }
                 </div>
             </div>
         </div>
@@ -129,6 +320,7 @@
 </div>
 
 
+<!-- Modal -->
 <!--<aside class="col-lg-4">-->
 <!-- Widget [Search Bar Widget]-->
 <!--<div class="widget search">
